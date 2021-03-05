@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+//轻提示插件
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:task_winer/verLogin.dart';
@@ -9,7 +12,7 @@ Future<Album> createAlbum(String user_phone) async{
 
   Dio dio=Dio();//使用dio默认配置
 //请求地址
-  dio.options.baseUrl="http://119.45.102.83:8080";//本地网络地址,这个地址每个人不一样,查看自己的本地IPV4地址的方法在文档中
+  dio.options.baseUrl="http://119.45.102.83:21";//本地网络地址,这个地址每个人不一样,查看自己的本地IPV4地址的方法在文档中
   //连接服务器超时时间(毫秒)
   dio.options.connectTimeout=5000;
   //在2.x版本中是接收数据的最长时限
@@ -21,7 +24,7 @@ Future<Album> createAlbum(String user_phone) async{
     options: Options(method: "POST"),//请求方法--post
   );
   if(response.statusCode==201){//如果请求成功--201状态码应该与后端保持一致
-    print(response.data);//打印查看接收到的数据--接收到的数据存储在response.data中
+    print('收到的数据: ${response.data}');//打印查看接收到的数据--接收到的数据存储在response.data中
     //返回Album对象--这个对象中有两个属性值id和title
     //new Map<String,dynamic>.from--这样写的目的是保证参数类型正确,即与Album类中的fromJsom工厂方法保持参数类型一致
     return Album.fromJson(new Map<String,dynamic>.from(response.data));
@@ -36,6 +39,7 @@ class Album{
   final String user_ver;
   Album({this.user_phone,this.user_passw,this.user_ver});
   factory Album.fromJson(Map<String,dynamic> json){//接收一个Map对象,返回Dart对象--因为操作和使用仍然是Dart对象更方便
+
     return Album(
       user_phone: json['user_phone'],
       user_passw: json['user_passw'],
@@ -101,6 +105,7 @@ class _RegState extends State<Reg>{
                         data: new ThemeData(primaryColor: Colors.red, hintColor: Colors.white38),//改变输入框边框颜色
                         child: new TextField(
                           controller: _controller1,
+                            inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],//设置只能录入数字[0-9]   如果想自定义要求需要自己重写类https://www.jianshu.com/p/627a7acde6e3
                             style: TextStyle(fontSize: 18,color: Colors.white),
                             decoration: const InputDecoration(
                               hintText: '手机号',
@@ -169,21 +174,50 @@ class _RegState extends State<Reg>{
                 child: Row(
                   children: <Widget>[
                     FlatButton(onPressed: (){
-                      if(_controller1==null){
-                        
+                      print(_controller1.text);
+                      if(_controller1.text.length<1){//bug  因为之前给text设置了初值,
+                        Fluttertoast.showToast(
+                            msg: "你今天真好看(没输手机号)",//String	设置toast展示的字符串
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,//ToastGravity枚举	设置toast的展示位置.(Web端仅支持顶部和底部)
+                            timeInSecForIosWeb: 1,//int	ios秒数
+                            backgroundColor: Colors.black45,//bgcolor	Color	toast背景色
+                            textColor: Colors.white,//Color	toast文字颜色
+                            fontSize: 16.0);//	float	toast文字字体大小
+                      }else if(_controller1.text.length<11){
+                        Fluttertoast.showToast(
+                            msg: "你今天真好看(手机号输错了)",//String	设置toast展示的字符串
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,//ToastGravity枚举	设置toast的展示位置.(Web端仅支持顶部和底部)
+                            timeInSecForIosWeb: 1,//int	ios秒数
+                            backgroundColor: Colors.black45,//bgcolor	Color	toast背景色
+                            textColor: Colors.white,//Color	toast文字颜色
+                            fontSize: 16.0);//	float	toast文字字体大小
                       }
-                      _data={"user_phone":"${_controller1.text}","user_passw":"${_controller2.text}"};
+                      if(_controller1.text.length==11&&_controller2.text.length<1){
+                        Fluttertoast.showToast(
+                            msg: "你今天真好看(密码没输)",//String	设置toast展示的字符串
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,//ToastGravity枚举	设置toast的展示位置.(Web端仅支持顶部和底部)
+                            timeInSecForIosWeb: 1,//int	ios秒数
+                            backgroundColor: Colors.black45,//bgcolor	Color	toast背景色
+                            textColor: Colors.white,//Color	toast文字颜色
+                            fontSize: 16.0);//	float	toast文字字体大小
+                      }else if(_controller1.text.length==11&&_controller2.text.length>0){
+                        _data={"user_phone":"${_controller1.text}","user_passw":"${_controller2.text}"};
 
-                      //print("ss${_controller1.text}");
-                      //print(_controller2.text);
-                      setState(() {
+                        //print("ss${_controller1.text}");
+                        //print(_controller2.text);
+                        setState(() {
 
-                        _futureAlbum=createAlbum(_controller1.text);//执行网络请求
+                          _futureAlbum=createAlbum(_controller1.text);//执行网络请求
 
-                      });
-                      //将_jData数据传至新页面
-                      //Navigator.push(context, MaterialPageRoute(builder: (context)=>
+                        });
+                        //将_jData数据传至新页面
+                        //Navigator.push(context, MaterialPageRoute(builder: (context)=>
                         //  Verification_Login(iserInfo: _jData)));
+                      }
+
                     }, child: Container(
                       width: 358,
                       height: 50,
@@ -221,11 +255,14 @@ class _RegState extends State<Reg>{
       builder: (context,snapshot){
         if(snapshot.hasData){//如果snapshot获取到了数据则返回获取到的数据
           //将用户手机号,密码和收到的验证码一起保存,
-          _data={"user_phone":"${_data['user_phone']}","user_passw":"${_data['user_passw']}","user_ver":"${snapshot.data}"};
+          print('snap.shot:  ${snapshot.data.user_ver}');
+          _data={"user_phone":"${_data['user_phone']}","user_passw":"${_data['user_passw']}","user_ver":"${snapshot.data.user_ver}"};
           //转换为统一对象
           Album _jData= Album.fromJson(_data);
-
+          _futureAlbum=null;
           //跳转页面同时传值
+          print('_data: $_data');
+          print('_data: $_jData');
           return Verification_Login(result:_jData);
         }else if(snapshot.hasError){//如果发生错误
           return Text("${snapshot.error}",style: TextStyle(color: Colors.white70),);
@@ -243,3 +280,7 @@ class _RegState extends State<Reg>{
     );
   }
 }
+
+
+
+

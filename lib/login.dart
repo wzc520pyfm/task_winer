@@ -39,13 +39,13 @@ Future<l_Album> createAlbum(String user_phone,String user_passw) async{
 class l_Album{
   final String user_phone;
   final String user_passw;
-  final int user_ver;
-  l_Album({this.user_phone,this.user_passw,this.user_ver});
+  final int user_isbool;//密码是否正确
+  l_Album({this.user_phone,this.user_passw,this.user_isbool});
   factory l_Album.fromJson(Map<String,dynamic> json){//接收一个Map对象,返回Dart对象--因为操作和使用仍然是Dart对象更方便
     return l_Album(
       user_phone: json['user_phone'],
       user_passw: json['user_passw'],
-      user_ver:json['user_ver'],
+      user_isbool:json['user_isbool'],
     );
   }
 }
@@ -248,7 +248,7 @@ class _LoginState extends State<Login>{
           //转换为统一对象
           //Album _jData= Album.fromJson(_data);
 
-          //跳转页面同时传值
+          //跳转页面同时传值--收到服务器响应正确时
           return HomeBody();
         }else if(snapshot.hasError){//如果发生错误
           return Text("${snapshot.error}",style: TextStyle(color: Colors.white70),);
