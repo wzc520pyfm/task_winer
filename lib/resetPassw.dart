@@ -1,10 +1,24 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:task_winer/verSet.dart';
 import 'homePage.dart';
 
+
+
 //忘记密码
-class Reset_PassWord extends StatelessWidget{
+class Reset_PassWord extends StatefulWidget{
+
+  @override
+
+  _Reset_PassWordState createState()=>_Reset_PassWordState();
+}
+
+class _Reset_PassWordState extends State<Reset_PassWord>{
+
+  final TextEditingController _controller1=TextEditingController();//控制器
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -45,6 +59,7 @@ class Reset_PassWord extends StatelessWidget{
                       child: Theme(//改变输入框边框颜色必须在Theme内
                         data: new ThemeData(primaryColor: Colors.red, hintColor: Colors.white38),//改变输入框边框颜色
                         child: new TextField(
+                          controller: _controller1,
                             style: TextStyle(fontSize: 18,color: Colors.white),
                             decoration: const InputDecoration(
                               hintText: '手机号',
@@ -77,6 +92,7 @@ class Reset_PassWord extends StatelessWidget{
                 child: Row(
                   children: <Widget>[
                     FlatButton(onPressed: (){
+                      
                       Navigator.push(context, MaterialPageRoute(builder: (context){
                         return Verifcation_Set();
                       }));

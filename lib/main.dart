@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      //debugShowCheckedModeBanner: false,
       title: '赏金猎人--基于"灵活用工"模式的兼职平台',
       home: HomeBody(),//如果将_HomeBodyState类中Scaffold的内容写在这里,在执行路由时会出错
     );
