@@ -15,7 +15,7 @@ Future<l_Album> createAlbum(String user_phone,String user_passw) async{
 
   Dio dio=Dio();//使用dio默认配置
 //请求地址
-  dio.options.baseUrl="http://119.45.102.83:8080/";//本地网络地址,这个地址每个人不一样,查看自己的本地IPV4地址的方法在文档中
+  dio.options.baseUrl="http://119.45.102.83:8080";//本地网络地址,这个地址每个人不一样,查看自己的本地IPV4地址的方法在文档中
   //连接服务器超时时间(毫秒)
   dio.options.connectTimeout=5000;
   //在2.x版本中是接收数据的最长时限
